@@ -10,7 +10,9 @@ const PRIORITY_RANK = { low: 1, medium: 2, high: 3 };
  * Продукт передан студентам в исходном состоянии; корректность НЕ гарантируется.
  */
 function normalizeTitle(title) {
-  return typeof title === 'string' ? title.trim() : '';
+  return typeof title === 'string'
+      ? title.trim().replace(/\s+/g, ' ')
+      : '';
 }
 
 function validateTicketInput(input) {
@@ -19,7 +21,8 @@ function validateTicketInput(input) {
     return { input: 'Ожидается объект с данными заявки' };
   }
 
-  if (typeof input.title !== 'string' || input.title.length < 5 || input.title.length > 80) {
+  const title = normalizeTitle(input.title);
+  if (title.length < 5 || title.length > 80) {
     errors.title = 'Тема должна содержать от 5 до 80 символов';
   }
 
@@ -38,7 +41,7 @@ function validateTicketInput(input) {
 
 function canChangeStatus(from, to) {
   if (!STATUSES.includes(from) || !STATUSES.includes(to)) return false;
-  if (from === 'new') return to === 'in_progress' || to === 'resolved';
+  if (from === 'new') return to === 'in_progress';
   if (from === 'in_progress') return to === 'resolved';
   return false;
 }
@@ -51,18 +54,21 @@ function filterAndSort(tickets, filters = {}) {
   const search = String(filters.search || '').trim();
   const status = String(filters.status || '').trim();
   const category = String(filters.category || '').trim();
+  const needle = search.toLowerCase();
+
   return tickets
-    .filter((ticket) => {
-      if (status && ticket.status !== status) return false;
-      if (category && ticket.category !== category) return false;
-      if (!search) return true;
-      return ticket.title.includes(search) || ticket.description.includes(search);
-    })
-    .sort((a, b) => {
-      const byPriority = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
-      if (byPriority !== 0) return byPriority;
-      return b.createdAt.localeCompare(a.createdAt);
-    });
+      .filter((ticket) => {
+        if (status && ticket.status !== status) return false;
+        if (category && ticket.category !== category) return false;
+        if (!needle) return true;
+        return ticket.title.toLowerCase().includes(needle)
+            || ticket.description.toLowerCase().includes(needle);
+      })
+      .sort((a, b) => {
+        const byPriority = PRIORITY_RANK[b.priority] - PRIORITY_RANK[a.priority];
+        if (byPriority !== 0) return byPriority;
+        return b.createdAt.localeCompare(a.createdAt);
+      });
 }
 
 module.exports = {

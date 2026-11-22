@@ -14,6 +14,15 @@ const priorityLabels = { low: 'Низкий', medium: 'Средний', high: '�
 const categoryLabels = { hardware: 'Оборудование', software: 'ПО', network: 'Сеть' };
 let lastRequest = 0;
 
+function esc(text) {
+  return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+}
+
 async function loadTickets() {
   const requestId = ++lastRequest;
   try {
@@ -32,12 +41,12 @@ async function loadTickets() {
     list.innerHTML = data.items.map((ticket) => {
       const nextStatus = ticket.status === 'new' ? 'in_progress' : 'resolved';
       const action = ticket.status === 'resolved' ? '' :
-        `<button data-id="${ticket.id}" data-next="${nextStatus}">${ticket.status === 'new' ? 'В работу' : 'Завершить'}</button>`;
-      return `<li class="ticket" data-testid="ticket-item" data-id="${ticket.id}">
-        <h3 class="ticket-title">${ticket.title}</h3>
-        <p class="ticket-description">${ticket.description}</p>
-        <div class="ticket-meta"><span>${categoryLabels[ticket.category]}</span>
-          <span>${priorityLabels[ticket.priority]}</span><span>${statusLabels[ticket.status]}</span></div>
+          `<button data-id="${esc(ticket.id)}" data-next="${esc(nextStatus)}">${ticket.status === 'new' ? 'В работу' : 'Завершить'}</button>`;
+      return `<li class="ticket" data-testid="ticket-item" data-id="${esc(ticket.id)}">
+        <h3 class="ticket-title">${esc(ticket.title)}</h3>
+        <p class="ticket-description">${esc(ticket.description)}</p>
+        <div class="ticket-meta"><span>${esc(categoryLabels[ticket.category])}</span>
+          <span>${esc(priorityLabels[ticket.priority])}</span><span>${esc(statusLabels[ticket.status])}</span></div>
         ${action}
       </li>`;
     }).join('');
