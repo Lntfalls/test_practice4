@@ -1,4 +1,5 @@
 name: HelpDesk autotests
+
 on:
   push:
   pull_request:
@@ -6,14 +7,35 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+
       - name: Install dependencies
         run: npm install
+
       - name: Unit and integration tests
         run: npm test
-      # Самостоятельное задание: добавить запуск Cypress E2E.
-      # Сначала запустите тестовый сервер и дождитесь /api/health.
+
+      - name: Cypress E2E
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run start:test
+          wait-on: 'http://127.0.0.1:3000/api/health'
+          wait-on-timeout: 60
+          browser: electron
+
+      - name: Upload Cypress screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
