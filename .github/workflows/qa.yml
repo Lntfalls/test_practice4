@@ -24,12 +24,25 @@ jobs:
       - name: Unit and integration tests
         run: npm test
 
-      - name: Cypress E2E
+      - name: Start test server
+        run: |
+          nohup npm run start:test > server.log 2>&1 &
+          echo $! > server.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/api/health; then
+              echo "Server is up"
+              break
+            fi
+            echo "Waiting for server... ($i)"
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:3000/api/health || (echo "Server log:"; cat server.log; exit 1)
+
+      - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
         with:
-          start: npm run start:test
           wait-on: 'http://127.0.0.1:3000/api/health'
-          wait-on-timeout: 60
+          wait-on-timeout: 30
           browser: electron
 
       - name: Upload Cypress screenshots on failure
