@@ -8,6 +8,7 @@ const listMessage = document.querySelector('#list-message');
 const search = document.querySelector('#search');
 const statusFilter = document.querySelector('#filter-status');
 const categoryFilter = document.querySelector('#filter-category');
+const priorityFilter = document.querySelector('#filter-priority');
 
 const statusLabels = { new: 'Новая', in_progress: 'В работе', resolved: 'Завершена' };
 const priorityLabels = { low: 'Низкий', medium: 'Средний', high: 'Высокий' };
