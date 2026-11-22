@@ -26,21 +26,28 @@ jobs:
 
       - name: Start test server
         run: |
+          # Запускаем сервер в фоне и сохраняем его PID
           nohup npm run start:test > server.log 2>&1 &
           echo $! > server.pid
+
+          # Ждём до 30 секунд, пока сервер ответит
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:3000/api/health; then
-              echo "Server is up"
+              echo "✅ Сервер готов"
               break
             fi
-            echo "Waiting for server... ($i)"
+            echo "⏳ Ожидание сервера... ($i)"
             sleep 1
           done
-          curl -fsS http://127.0.0.1:3000/api/health || (echo "Server log:"; cat server.log; exit 1)
+
+          # Финальная проверка: если сервер не поднялся, показываем его лог и падаем
+          curl -fsS http://127.0.0.1:3000/api/health || (echo "❌ Сервер не ответил. Лог:"; cat server.log; exit 1)
 
       - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
         with:
+          # Сервер уже запущен предыдущим шагом, поэтому start не нужен.
+          # wait-on оставляем для подстраховки, но теперь он будет ждать уже готовый сервер.
           wait-on: 'http://127.0.0.1:3000/api/health'
           wait-on-timeout: 30
           browser: electron
