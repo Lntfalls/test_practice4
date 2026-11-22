@@ -213,5 +213,31 @@ test('I-07: GET /api/tickets сортирует high -> medium -> low', async ()
   const body = await (await fetch(`${base}/api/tickets`)).json();
   expect(body.items.map((t) => t.priority)).toEqual(['high', 'medium', 'low']);
 });
+
+test('GET /api/tickets?priority=high возвращает только high', async () => {
+  // Создаём две заявки с разным приоритетом
+  await fetch(`${base}/api/tickets`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      title: 'High заявка', description: 'Описание high заявки',
+      category: 'network', priority: 'high'
+    })
+  });
+  await fetch(`${base}/api/tickets`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      title: 'Low заявка', description: 'Описание low заявки',
+      category: 'network', priority: 'low'
+    })
+  });
+
+  const response = await fetch(`${base}/api/tickets?priority=high`);
+  const body = await response.json();
+
+  expect(response.status).toBe(200);
+  expect(body.items.every(t => t.priority === 'high')).toBe(true);
+});
 // Добавьте проверки GET с фильтрами, некорректных запросов,
 // запретных переходов статуса и последовательных запросов к API.
