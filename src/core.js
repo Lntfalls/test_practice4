@@ -54,12 +54,14 @@ function filterAndSort(tickets, filters = {}) {
   const search = String(filters.search || '').trim();
   const status = String(filters.status || '').trim();
   const category = String(filters.category || '').trim();
+  const priority = String(filters.priority || '').trim(); //ДОБАВЛЕНО
   const needle = search.toLowerCase();
 
   return tickets
       .filter((ticket) => {
         if (status && ticket.status !== status) return false;
         if (category && ticket.category !== category) return false;
+        if (priority && ticket.priority !== priority) return false; //ДОБАВЛЕНО
         if (!needle) return true;
         return ticket.title.toLowerCase().includes(needle)
             || ticket.description.toLowerCase().includes(needle);

@@ -83,4 +83,10 @@ describe('HelpDesk — E2E-проверки', () => {
     // А текстовая строка видна:
     page.itemByTitle('<b>Тема</b> с разметкой').should('exist');
   });
+
+  it('фильтрует по приоритету high', () => {
+    page.open();
+    page.setPriority('high');
+    page.items().should('have.length', 2); // в исходных данных две high
+  });
 });

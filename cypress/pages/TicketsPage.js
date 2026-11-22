@@ -11,6 +11,9 @@ export class TicketsPage {
   setCategory(category) {
     cy.get('[data-testid="category-filter"]').select(category);
   }
+  setPriority(priority) {
+    cy.get('[data-testid="priority-filter"]').select(priority);
+  }
   itemByTitle(title) {
     return cy.get('[data-testid="ticket-item"]')
         .contains('[data-testid="ticket-item"]', title)

@@ -29,7 +29,8 @@ async function loadTickets() {
     const query = new URLSearchParams({
       search: search.value,
       status: statusFilter.value,
-      category: categoryFilter.value
+      category: categoryFilter.value,
+      priority: priorityFilter.value
     });
     const response = await fetch(`/api/tickets?${query.toString()}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -95,5 +96,6 @@ list.addEventListener('click', async (event) => {
   await loadTickets();
 });
 
-[search, statusFilter, categoryFilter].forEach((element) => element.addEventListener('input', loadTickets));
+[search, statusFilter, categoryFilter, priorityFilter]
+    .forEach((element) => element.addEventListener('input', loadTickets));
 loadTickets();
